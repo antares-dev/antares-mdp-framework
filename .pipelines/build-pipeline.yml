@@ -29,7 +29,7 @@ jobs:
       enabled: false
       displayName: 'Publish ADF'
       inputs:
-        PathtoPublish: 'au-adf-bi-mdw-dev-001'
+        PathtoPublish: 'adf-mdp-dev-010'
         ArtifactName: 'ADF'
     - task: PublishBuildArtifacts@1
       displayName: 'Publish Databricks'

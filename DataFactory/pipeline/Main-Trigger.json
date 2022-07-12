@@ -1,0 +1,66 @@
+{
+	"name": "Main-Trigger",
+	"properties": {
+		"activities": [
+			{
+				"name": "get-source-load",
+				"description": " ",
+				"type": "Lookup",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "7.00:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "AzureSqlSource",
+						"sqlReaderQuery": {
+							"value": "SELECT COALESCE((SELECT [Value] FROM [dbo].[Config] WHERE [KeyGroup] = 'LoadDefault' AND [Key] = 'SystemCodes'), '_{None}_') [LoadDefault]",
+							"type": "Expression"
+						},
+						"partitionOption": "None"
+					},
+					"dataset": {
+						"referenceName": "SQL_ControlDB",
+						"type": "DatasetReference"
+					},
+					"firstRowOnly": false
+				}
+			},
+			{
+				"name": "Main",
+				"type": "ExecutePipeline",
+				"dependsOn": [
+					{
+						"activity": "get-source-load",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"userProperties": [],
+				"typeProperties": {
+					"pipeline": {
+						"referenceName": "Main",
+						"type": "PipelineReference"
+					},
+					"waitOnCompletion": true,
+					"parameters": {
+						"SystemCodes": {
+							"value": "@activity('get-source-load').output.value[0].LoadDefault",
+							"type": "Expression"
+						}
+					}
+				}
+			}
+		],
+		"folder": {
+			"name": "ELT-Framework"
+		},
+		"annotations": []
+	}
+}

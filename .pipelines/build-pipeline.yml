@@ -1,0 +1,44 @@
+trigger:
+  branches:
+    include: [ master ]
+  paths:
+    include: [ 'ControlDB', 'Databricks', 'adf-mdp-dev-010' ] 
+    exclude: [ 'DataFactory' ]
+
+jobs:
+  - job: Windows
+    pool:
+      vmImage: 'windows-2019'
+    steps:
+    #========================
+    # BUILD
+    #========================
+    - task: MSBuild@1
+      displayName: 'Build ControlDB'
+      inputs:
+        solution: ControlDB/ControlDB.sqlproj
+    #========================
+    # PUBLISH
+    #========================
+    - task: PublishBuildArtifacts@1
+      displayName: 'Publish AzureResources'
+      inputs:
+        PathtoPublish: 'AzureResources'
+        ArtifactName: 'AzureResources'
+    - task: PublishBuildArtifacts@1
+      enabled: false
+      displayName: 'Publish ADF'
+      inputs:
+        PathtoPublish: 'au-adf-bi-mdw-dev-001'
+        ArtifactName: 'ADF'
+    - task: PublishBuildArtifacts@1
+      displayName: 'Publish Databricks'
+      inputs:
+        PathtoPublish: 'Databricks'
+        ArtifactName: 'Databricks'
+    - task: PublishBuildArtifacts@1
+      displayName: 'Publish ControlDB'
+      inputs:
+        PathtoPublish: ControlDB/bin/Debug
+        ArtifactName: ControlDB
+
